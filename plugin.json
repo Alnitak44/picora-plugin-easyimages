@@ -1,0 +1,15 @@
+{
+  "packageVersion": 1,
+  "runtime": "http-v2",
+  "entry": "uploader.json",
+  "id": "io.github.alnitak44.picora.easyimages2",
+  "name": "简单图床",
+  "version": "1.1.0",
+  "description": "连接 EasyImages2.0 自建简单图床，用 API Token 上传，支持单张图片云端删除。",
+  "author": "Alnitak44 & DeepSeek",
+  "homepage": "https://github.com/icret/EasyImages2.0",
+  "repository": "https://github.com/Alnitak44/picora-plugin-easyimages2",
+  "icon": "assets/icon.svg",
+  "mark": "EI",
+  "color": "#2F6BE4"
+}

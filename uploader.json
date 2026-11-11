@@ -1,0 +1,102 @@
+{
+  "schemaVersion": 2,
+  "requires": [
+    "response-conditions",
+    "scoped-delete"
+  ],
+  "permissions": {
+    "network": [
+      "config.baseUrl"
+    ],
+    "readSelectedFile": true,
+    "allowInsecureHttp": true,
+    "deleteUploadedFile": true
+  },
+  "config": [
+    {
+      "key": "baseUrl",
+      "label": "图床地址",
+      "type": "text",
+      "role": "endpoint",
+      "required": true,
+      "hint": "例如 https://img.example.com；装在子目录时填 https://example.com/pic。末尾不要加 /api/index.php"
+    },
+    {
+      "key": "token",
+      "label": "API Token",
+      "type": "secret",
+      "role": "token",
+      "required": true,
+      "hint": "后台 → 图床安全 → API 上传 中创建的 Token，只包含字母和数字"
+    }
+  ],
+  "upload": {
+    "method": "POST",
+    "url": "${normalizeBaseUrl(config.baseUrl)}/api/index.php",
+    "headers": {
+      "Accept": "application/json",
+      "User-Agent": "Picora-EasyImages/1.1.0"
+    },
+    "body": {
+      "type": "multipart",
+      "fileField": "image",
+      "fields": {
+        "token": "${config.token}"
+      }
+    },
+    "response": {
+      "url": "url",
+      "thumbnail": "thumb",
+      "deleteKey": "del",
+      "successStatuses": [
+        200
+      ],
+      "success": {
+        "path": "result",
+        "equals": "success"
+      },
+      "errorMessage": "message",
+      "errorCode": "code"
+    },
+    "followRedirects": false,
+    "timeoutSeconds": 120,
+    "errors": {
+      "400": "图床拒绝了上传请求（HTTP 400），请检查图片格式或服务端限制。",
+      "401": "站点要求登录后才能上传，请确认后台已开启 API 上传并填写了 Token。",
+      "403": "上传被拒绝（HTTP 403），可能触发了 WAF、防盗链或 IP 名单限制。",
+      "404": "找不到 /api/index.php，请检查图床地址是否填对、是否装在子目录。",
+      "405": "上传接口不接受 POST，请检查站点或反向代理规则。",
+      "413": "图片超过服务器限制，请检查 Nginx client_max_body_size 与 PHP upload_max_filesize。",
+      "429": "请求过于频繁，请稍后重试。",
+      "500": "图床服务异常，请查看站点日志或 PHP 错误日志。",
+      "502": "图床网关异常，请稍后重试。",
+      "503": "图床暂时不可用，请稍后重试。",
+      "504": "图床响应超时，请稍后重试或换更小的图片。"
+    }
+  },
+  "delete": {
+    "method": "GET",
+    "url": "${upload.deleteKey}",
+    "headers": {
+      "Accept": "application/json",
+      "User-Agent": "Picora-EasyImages/1.1.0"
+    },
+    "response": {
+      "successStatuses": [
+        200
+      ],
+      "success": {
+        "path": "code",
+        "equals": 200
+      },
+      "errorMessage": "msg",
+      "errorCode": "code"
+    },
+    "followRedirects": false,
+    "timeoutSeconds": 30,
+    "errors": {
+      "403": "图床拒绝删除：删除链接无效或站点校验失败。",
+      "404": "文件不存在或已被删除。"
+    }
+  }
+}
